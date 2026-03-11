@@ -1,0 +1,71 @@
+:root {
+  --sena-green:       #39A900;
+  --sena-dark-green:  #007A33;
+  --sena-light-green: #E8F5E0;
+  --sena-white:       #FFFFFF;
+  --sena-gray-bg:     #F4F7F4;
+  --sena-gray-border: #C8DEC8;
+  --sena-text:        #1B2E1B;
+  --sena-text-muted:  #5A7A5A;
+  --sena-danger:      #D32F2F;
+  --sena-danger-hover:#B71C1C;
+
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  color: var(--sena-text);
+  background-color: var(--sena-gray-bg);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background-color: var(--sena-gray-bg);
+}
+
+h1, h2, h3 {
+  margin: 0 0 1rem;
+  color: var(--sena-dark-green);
+}
+
+button {
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  border-radius: 6px;
+  border: none;
+  padding: 0.55em 1.2em;
+  transition: background-color 0.2s, opacity 0.2s;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+input, textarea {
+  font-family: inherit;
+  font-size: 1rem;
+  border: 1.5px solid var(--sena-gray-border);
+  border-radius: 6px;
+  padding: 0.55rem 0.75rem;
+  width: 100%;
+  background: var(--sena-white);
+  color: var(--sena-text);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+input:focus, textarea:focus {
+  outline: none;
+  border-color: var(--sena-green);
+  box-shadow: 0 0 0 3px rgba(57, 169, 0, 0.15);
+}

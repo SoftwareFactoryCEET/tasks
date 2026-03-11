@@ -1,0 +1,184 @@
+/* ── Layout principal ──────────────────────────────────── */
+.app-header {
+  background-color: var(--sena-dark-green);
+  color: var(--sena-white);
+  padding: 0.9rem 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.18);
+}
+
+.app-header h1 {
+  color: var(--sena-white);
+  font-size: 1.4rem;
+  margin: 0;
+  letter-spacing: 0.5px;
+}
+
+.app-header img {
+  height: 40px;
+}
+
+.app-main {
+  max-width: 760px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+
+/* ── Tarjeta contenedora ───────────────────────────────── */
+.card {
+  background: var(--sena-white);
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+/* ── Formulario ────────────────────────────────────────── */
+.task-form h2 {
+  font-size: 1.1rem;
+  color: var(--sena-dark-green);
+  margin-bottom: 1rem;
+}
+
+.task-form .form-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.task-form textarea {
+  resize: vertical;
+  min-height: 72px;
+}
+
+.btn-primary {
+  background-color: var(--sena-green);
+  color: var(--sena-white);
+  width: 100%;
+  padding: 0.7rem;
+  font-size: 1rem;
+  margin-top: 0.25rem;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background-color: var(--sena-dark-green);
+}
+
+/* ── Lista de tareas ───────────────────────────────────── */
+.task-list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.task-list-header h2 {
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+.task-count {
+  font-size: 0.85rem;
+  color: var(--sena-text-muted);
+  background: var(--sena-light-green);
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-weight: 500;
+}
+
+.task-empty {
+  text-align: center;
+  color: var(--sena-text-muted);
+  padding: 2rem 0;
+  font-size: 0.95rem;
+}
+
+/* ── Ítem de tarea ─────────────────────────────────────── */
+.task-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.9rem 1rem;
+  border: 1.5px solid var(--sena-gray-border);
+  border-radius: 8px;
+  margin-bottom: 0.6rem;
+  background: var(--sena-white);
+  transition: opacity 0.2s, border-color 0.2s;
+}
+
+.task-item:hover {
+  border-color: var(--sena-green);
+}
+
+.task-item.eliminando {
+  opacity: 0.45;
+}
+
+.task-item input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  min-width: 18px;
+  accent-color: var(--sena-green);
+  cursor: pointer;
+  margin-top: 3px;
+}
+
+.task-item-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.task-item-title {
+  font-weight: 600;
+  font-size: 0.98rem;
+  word-break: break-word;
+}
+
+.task-item-title.completada {
+  text-decoration: line-through;
+  color: var(--sena-text-muted);
+}
+
+.task-item-desc {
+  margin: 0.2rem 0 0;
+  color: var(--sena-text-muted);
+  font-size: 0.88rem;
+  word-break: break-word;
+}
+
+.btn-danger {
+  background: none;
+  border: none;
+  color: var(--sena-danger);
+  font-size: 0.88rem;
+  padding: 0.3rem 0.5rem;
+  border-radius: 4px;
+  white-space: nowrap;
+  align-self: flex-start;
+}
+
+.btn-danger:hover:not(:disabled) {
+  background-color: #fdecea;
+  color: var(--sena-danger-hover);
+}
+
+/* ── Estados globales ──────────────────────────────────── */
+.estado-cargando,
+.estado-error {
+  text-align: center;
+  padding: 3rem 1rem;
+  font-size: 1rem;
+}
+
+.estado-error {
+  color: var(--sena-danger);
+}
+
+/* ── Responsive ────────────────────────────────────────── */
+@media (max-width: 480px) {
+  .app-header h1 { font-size: 1.1rem; }
+  .app-main      { margin: 1rem auto; }
+  .card          { padding: 1rem; }
+}
