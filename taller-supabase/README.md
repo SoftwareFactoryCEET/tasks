@@ -1,6 +1,6 @@
 # SENA — Gestión de Tareas
 
-> Aplicación web de gestión de tareas construida con **React + TypeScript + Vite + Supabase**, desarrollada como taller práctico de integración frontend-backend.
+> Aplicación web completa construida con **React + TypeScript + Vite + Supabase**: autenticación, CRUD de tareas, dashboard con estadísticas y subida de avatar al Storage de Supabase.
 
 ---
 
@@ -12,60 +12,106 @@
 - [Arquitectura del Proyecto](#arquitectura-del-proyecto)
 - [Estructura de Archivos](#estructura-de-archivos)
 - [Modelo de Datos](#modelo-de-datos)
-- [Flujo de Datos](#flujo-de-datos)
+- [Flujos Principales](#flujos-principales)
 - [Funcionalidades](#funcionalidades)
 - [Instalación y Configuración](#instalación-y-configuración)
 - [Configuración de Supabase](#configuración-de-supabase)
 - [Scripts Disponibles](#scripts-disponibles)
 - [Documentación de Capas](#documentación-de-capas)
 - [Convenciones y Buenas Prácticas](#convenciones-y-buenas-prácticas)
-- [Próximas Funcionalidades](#próximas-funcionalidades)
+- [Paleta de Colores SENA](#paleta-de-colores-sena)
 
 ---
 
 ## Descripción General
 
-**SENA Gestión de Tareas** es una aplicación CRUD completa que permite crear, visualizar, actualizar y eliminar tareas almacenadas en una base de datos PostgreSQL gestionada por **Supabase**. El proyecto demuestra una arquitectura limpia por capas: tipos → cliente → servicio → hook → componente.
+**SENA Gestión de Tareas** es una aplicación full-stack que cubre el ciclo completo de desarrollo con Supabase:
+
+- **Autenticación** con email/contraseña (Supabase Auth)
+- **CRUD de tareas** sobre PostgreSQL con tipos generados automáticamente
+- **Rutas protegidas** con redirección según sesión activa
+- **Dashboard** con estadísticas y barra de progreso
+- **Avatar upload** al bucket de Supabase Storage con RLS
 
 ### Objetivos del Taller
 
-- Integrar un cliente de Supabase tipado con TypeScript
-- Implementar operaciones CRUD a través de una capa de servicios
-- Gestionar estado asíncrono con hooks personalizados
-- Construir componentes React desacoplados y reutilizables
-- Aplicar estilos con paleta de marca (SENA verde)
+- Integrar un cliente Supabase tipado con TypeScript end-to-end
+- Implementar autenticación completa (registro, login, sesión persistente)
+- Gestionar rutas públicas y protegidas con React Router
+- Operar Supabase Storage con políticas RLS correctas
+- Aplicar arquitectura limpia por capas en una SPA real
 
 ---
 
 ## Demo de la Aplicación
 
+### Pantalla de Login / Registro
+
 ```
-┌─────────────────────────────────────────────────────────┐
-│            SENA — Gestión de Tareas                     │
-├─────────────────────────────────────────────────────────┤
-│  Nueva Tarea                                            │
-│  ┌───────────────────────────────────────────────────┐  │
-│  │  Título *                                         │  │
-│  │  [________________________]                       │  │
-│  │  Descripción (opcional)                           │  │
-│  │  [________________________]                       │  │
-│  │                    [ Agregar Tarea ]              │  │
-│  └───────────────────────────────────────────────────┘  │
-│                                                         │
-│  Tareas  2 / 3 completadas                             │
-│  ┌───────────────────────────────────────────────────┐  │
-│  │ ☑  ~~Revisar documentación~~              [🗑️]    │  │
-│  │ ☑  ~~Instalar dependencias~~              [🗑️]    │  │
-│  │ ☐  Conectar Supabase                     [🗑️]    │  │
-│  └───────────────────────────────────────────────────┘  │
-└─────────────────────────────────────────────────────────┘
+┌────────────────────────────────────┐
+│           [ SENA ]                 │
+│      Iniciar sesión                │
+│      Gestión de Tareas             │
+│                                    │
+│  Correo electrónico                │
+│  [tu@correo.com____________]       │
+│  Contraseña                        │
+│  [••••••••__________________]      │
+│                                    │
+│  [        Entrar           ]       │
+│                                    │
+│  ¿No tienes cuenta?                │
+│  Regístrate aquí                   │
+└────────────────────────────────────┘
 ```
 
-**Estados visuales:**
-- `☑` + tachado = Tarea completada
-- `☐` = Tarea pendiente
-- Opacidad reducida al eliminar (feedback visual)
-- Texto "Guardando..." durante el envío del formulario
+### Barra de Navegación (rutas protegidas)
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│ [SENA] Gestión de Tareas   Mis tareas  Dashboard            │
+│                             usuario@email.com  [Cerrar sesión]│
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Home — Mis Tareas
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  Nueva tarea                                                │
+│  ┌───────────────────────────────────────────────────────┐  │
+│  │  Título *  [________________________________]         │  │
+│  │  Descripción (opcional)                               │  │
+│  │  [________________________________]                   │  │
+│  │                          [ + Agregar tarea ]          │  │
+│  └───────────────────────────────────────────────────────┘  │
+│                                                             │
+│  Mis tareas                          2 / 3 completadas      │
+│  ┌───────────────────────────────────────────────────────┐  │
+│  │ ☑  ~~Revisar documentación~~                  [🗑]    │  │
+│  │ ☑  ~~Instalar dependencias~~                  [🗑]    │  │
+│  │ ☐  Conectar Supabase Storage                  [🗑]    │  │
+│  └───────────────────────────────────────────────────────┘  │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Dashboard
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  [ 👤 ]  Bienvenido, usuario@email.com                      │
+│  [Cambiar foto]   Aquí tienes un resumen...                 │
+├──────────┬──────────┬──────────┬──────────────────────────┤
+│  Total   │Completad.│Pendientes│  Progreso                 │
+│    3     │    2     │    1     │    67%                    │
+├──────────┴──────────┴──────────┴──────────────────────────┤
+│  Progreso general                                           │
+│  ████████████████████████░░░░░░░░░░  67%                   │
+│  2 de 3 tareas completadas                                  │
+├─────────────────────────────────────────────────────────────┤
+│  [         Ir a mis tareas          ]                       │
+└─────────────────────────────────────────────────────────────┘
+```
 
 ---
 
@@ -76,13 +122,11 @@
 | UI Library | React | 19.2.0 |
 | Lenguaje | TypeScript | ~5.9.3 |
 | Build Tool | Vite | 7.3.1 |
-| Backend / DB | Supabase JS | 2.99.0 |
+| Backend / DB / Auth / Storage | Supabase JS | 2.99.0 |
 | Base de Datos | PostgreSQL | 14.1 |
 | Routing | React Router DOM | 7.13.1 |
-| Graficos | Recharts | 3.8.0 |
+| Gráficos | Recharts | 3.8.0 |
 | Linting | ESLint | 9.39.1 |
-
-> **Nota:** React Router DOM y Recharts están instalados y preparados para la siguiente fase del taller (rutas múltiples y visualización de estadísticas).
 
 ---
 
@@ -91,35 +135,64 @@
 El proyecto implementa una **arquitectura limpia en capas** donde cada capa tiene una única responsabilidad:
 
 ```
-┌─────────────────────────────────────────────────────────┐
-│                     BROWSER / UI                        │
-├─────────────────────────────────────────────────────────┤
-│  Pages (Contenedores de Página)                         │
-│  └── Home.tsx  ←  Orquesta el layout completo           │
-├─────────────────────────────────────────────────────────┤
-│  Components (UI Reutilizable)                           │
-│  ├── TaskForm.tsx  ←  Formulario de creación            │
-│  └── TaskItem.tsx  ←  Elemento de lista                 │
-├─────────────────────────────────────────────────────────┤
-│  Hooks (Estado + Lógica de Negocio)                     │
-│  └── useTasks.ts  ←  Estado global de tareas            │
-├─────────────────────────────────────────────────────────┤
-│  Services (Capa de API)                                 │
-│  └── taskService.ts  ←  Todas las llamadas a Supabase   │
-├─────────────────────────────────────────────────────────┤
-│  Lib (Infraestructura)                                  │
-│  └── supabaseClient.ts  ←  Singleton del cliente        │
-├─────────────────────────────────────────────────────────┤
-│  Types (Contratos de Datos)                             │
-│  └── database.ts  ←  Tipos generados por Supabase       │
-├─────────────────────────────────────────────────────────┤
-│                   SUPABASE / PostgreSQL                 │
-└─────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────┐
+│                        BROWSER / UI                          │
+├──────────────────────────────────────────────────────────────┤
+│  Pages (Contenedores de Página)                              │
+│  ├── Login.tsx       ←  Formulario de acceso                 │
+│  ├── Register.tsx    ←  Formulario de registro               │
+│  ├── Home.tsx        ←  Lista y gestión de tareas            │
+│  └── Dashboard.tsx   ←  Estadísticas + avatar               │
+├──────────────────────────────────────────────────────────────┤
+│  Components (UI Reutilizable)                                │
+│  ├── NavBar.tsx       ←  Barra de navegación con logout      │
+│  ├── PrivateRoute.tsx ←  Guard de rutas autenticadas         │
+│  ├── TaskForm.tsx     ←  Formulario de nueva tarea           │
+│  ├── TaskItem.tsx     ←  Ítem de tarea (toggle + eliminar)   │
+│  └── AvatarUpload.tsx ←  Subida de foto al Storage           │
+├──────────────────────────────────────────────────────────────┤
+│  Context (Estado Global)                                     │
+│  └── AuthContext.tsx  ←  Proveedor de sesión de usuario      │
+├──────────────────────────────────────────────────────────────┤
+│  Hooks (Estado + Lógica de Negocio)                          │
+│  ├── useAuth.ts       ←  Sesión, signIn, signUp, signOut     │
+│  └── useTasks.ts      ←  CRUD de tareas con estado local     │
+├──────────────────────────────────────────────────────────────┤
+│  Services (Capa de API — nunca importados desde UI)          │
+│  ├── authService.ts    ←  Supabase Auth                      │
+│  ├── taskService.ts    ←  Supabase DB (tabla Tareas)         │
+│  └── storageService.ts ←  Supabase Storage (avatars)        │
+├──────────────────────────────────────────────────────────────┤
+│  Lib (Infraestructura)                                       │
+│  └── supabaseClient.ts ←  Singleton tipado del cliente       │
+├──────────────────────────────────────────────────────────────┤
+│  Types                                                       │
+│  └── database.ts      ←  Tipos generados por Supabase CLI    │
+├──────────────────────────────────────────────────────────────┤
+│              SUPABASE (Auth · PostgreSQL · Storage)          │
+└──────────────────────────────────────────────────────────────┘
 ```
 
 **Flujo de dependencias (unidireccional):**
 ```
-Pages → Components → Hooks → Services → lib/supabaseClient → Supabase API
+Pages → Components → Context/Hooks → Services → supabaseClient → Supabase
+```
+
+### Flujo de Rutas
+
+```
+/login      ──→  Login.tsx        (pública)
+/register   ──→  Register.tsx     (pública)
+                      │
+              PrivateRoute (guard)
+              ┌────────────────┐
+              │  NavBar        │
+              │  <Outlet />    │
+              └───────┬────────┘
+                      │
+        ┌─────────────┴─────────────┐
+        ▼                           ▼
+/   →  Home.tsx            /dashboard → Dashboard.tsx
 ```
 
 ---
@@ -129,46 +202,50 @@ Pages → Components → Hooks → Services → lib/supabaseClient → Supabase 
 ```
 taller-supabase/
 │
-├── .env                          # Variables de entorno (VITE_SUPABASE_*)
-├── .gitignore                    # Archivos excluidos de git
-├── index.html                    # Punto de entrada HTML
-├── package.json                  # Dependencias y scripts
-├── vite.config.ts                # Configuración de Vite + React plugin
-├── tsconfig.json                 # Configuración raíz de TypeScript
-├── tsconfig.app.json             # TypeScript para el código de app
-├── tsconfig.node.json            # TypeScript para scripts de Node
-├── eslint.config.js              # Reglas de linting (flat config)
-│
-├── public/
-│   └── vite.svg                  # Icono estático
+├── .env                            # Variables de entorno (VITE_SUPABASE_*)
+├── .gitignore
+├── index.html                      # Punto de entrada HTML
+├── package.json
+├── vite.config.ts
+├── tsconfig.json / tsconfig.app.json / tsconfig.node.json
+├── eslint.config.js
 │
 └── src/
-    ├── main.tsx                  # Punto de entrada React (ReactDOM.render)
-    ├── App.tsx                   # Componente raíz, header SENA
-    ├── App.css                   # Estilos del componente App y tarjetas
-    ├── index.css                 # Estilos globales, paleta de colores SENA
-    │
-    ├── assets/
-    │   └── react.svg             # Logo de React
+    ├── main.tsx                    # ReactDOM.createRoot
+    ├── App.tsx                     # ★ Router + AuthProvider + rutas
+    ├── App.css                     # Todos los estilos (navbar, auth, dashboard, avatar)
+    ├── index.css                   # Variables CSS, reset, base
     │
     ├── types/
-    │   └── database.ts           # ★ Tipos TypeScript de la BD (Supabase CLI)
+    │   └── database.ts             # ★ Tipos generados por Supabase CLI
     │
     ├── lib/
-    │   └── supabaseClient.ts     # ★ Cliente Supabase (patrón Singleton)
+    │   └── supabaseClient.ts       # ★ Singleton createClient<Database>
     │
     ├── services/
-    │   └── taskService.ts        # ★ Operaciones CRUD contra Supabase
+    │   ├── authService.ts          # ★ signIn, signUp, signOut, onAuthStateChange
+    │   ├── taskService.ts          # ★ getAll, create, update, delete, search
+    │   └── storageService.ts       # ★ avatars.upload / getPublicUrlFromPath
+    │
+    ├── context/
+    │   └── AuthContext.tsx         # ★ AuthProvider + useAuthContext
     │
     ├── hooks/
-    │   └── useTasks.ts           # ★ Hook personalizado de estado de tareas
+    │   ├── useAuth.ts              # ★ Estado de sesión + métodos auth
+    │   └── useTasks.ts             # ★ Estado de tareas + CRUD
     │
     ├── components/
-    │   ├── TaskForm.tsx           # ★ Formulario de nueva tarea
-    │   └── TaskItem.tsx           # ★ Ítem de tarea (toggle + eliminar)
+    │   ├── NavBar.tsx              # ★ Barra superior con links y logout
+    │   ├── PrivateRoute.tsx        # ★ Guard: redirige a /login si no hay sesión
+    │   ├── AvatarUpload.tsx        # ★ Input de imagen + upload a Storage
+    │   ├── TaskForm.tsx            # Formulario controlado de nueva tarea
+    │   └── TaskItem.tsx            # Ítem con checkbox y botón eliminar
     │
     └── pages/
-        └── Home.tsx              # ★ Página principal, compone todo
+        ├── Login.tsx               # ★ Formulario de inicio de sesión
+        ├── Register.tsx            # ★ Formulario de registro con validación
+        ├── Home.tsx                # ★ Lista de tareas
+        └── Dashboard.tsx           # ★ Estadísticas + AvatarUpload
 ```
 
 > Los archivos marcados con ★ son los archivos clave del taller.
@@ -177,130 +254,212 @@ taller-supabase/
 
 ## Modelo de Datos
 
-### Tabla `tareas` en PostgreSQL / Supabase
+### Tabla `Tareas` en PostgreSQL
 
 ```sql
-CREATE TABLE tareas (
+CREATE TABLE "Tareas" (
   id          UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
   titulo      TEXT        NOT NULL,
   descripcion TEXT,
-  completada  BOOLEAN     NOT NULL DEFAULT FALSE,
-  created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  completada  BOOLEAN     DEFAULT FALSE,
+  created_at  TIMESTAMPTZ DEFAULT NOW(),
   user_id     UUID        REFERENCES auth.users(id)
+);
+
+-- RLS
+ALTER TABLE "Tareas" ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Acceso público a tareas"
+  ON "Tareas" FOR ALL
+  USING (true) WITH CHECK (true);
+```
+
+### Bucket `avatars` en Supabase Storage
+
+```
+avatars/
+└── {user_id}/
+    └── avatar.{ext}       ← un archivo por usuario, upsert: true
+```
+
+**Las 4 políticas RLS necesarias** para que `upsert: true` funcione:
+
+```sql
+-- 1. SELECT — detectar si el archivo ya existe
+CREATE POLICY "Usuarios pueden ver objetos en avatars"
+ON storage.objects FOR SELECT TO authenticated
+USING (bucket_id = 'avatars');
+
+-- 2. INSERT — subir archivo nuevo
+CREATE POLICY "Usuarios pueden subir su avatar"
+ON storage.objects FOR INSERT TO authenticated
+WITH CHECK (
+  bucket_id = 'avatars'
+  AND name LIKE (auth.uid()::text || '/%')
+);
+
+-- 3. UPDATE — actualizar metadata
+CREATE POLICY "Usuarios pueden actualizar su avatar"
+ON storage.objects FOR UPDATE TO authenticated
+USING (
+  bucket_id = 'avatars'
+  AND name LIKE (auth.uid()::text || '/%')
+);
+
+-- 4. DELETE — reemplazar el archivo anterior
+CREATE POLICY "Usuarios pueden eliminar su avatar"
+ON storage.objects FOR DELETE TO authenticated
+USING (
+  bucket_id = 'avatars'
+  AND name LIKE (auth.uid()::text || '/%')
 );
 ```
 
-### Tipos TypeScript generados (`src/types/database.ts`)
+> **Por qué 4 políticas:** `upsert: true` ejecuta internamente SELECT → DELETE → INSERT. Sin las 4, la operación falla con *"new row violates row-level security policy"*.
+
+### Tipos TypeScript (`src/types/database.ts`)
 
 ```typescript
-// Tipo completo de una fila
-type Tarea = Database['public']['Tables']['tareas']['Row'];
-// {
-//   id: string
-//   titulo: string
-//   descripcion: string | null
-//   completada: boolean
-//   created_at: string
-//   user_id: string | null
-// }
-
-// Para insertar (id y created_at son opcionales)
-type TareaInsert = Database['public']['Tables']['tareas']['Insert'];
-
-// Para actualizar (todos los campos son opcionales)
-type TareaUpdate = Database['public']['Tables']['tareas']['Update'];
-
-// Helpers de acceso directo
-type Tables<T extends keyof Database['public']['Tables']> =
-  Database['public']['Tables'][T]['Row'];
+type Tarea       = Tables<'Tareas'>          // fila completa
+type TareaInsert = TablesInsert<'Tareas'>     // para INSERT
+type TareaUpdate = TablesUpdate<'Tareas'>     // para UPDATE (todo opcional)
 ```
 
 ---
 
-## Flujo de Datos
+## Flujos Principales
 
-### Crear una Tarea
-
-```
-Usuario escribe título/descripción
-         │
-         ▼
-   TaskForm.tsx
-   handleSubmit()
-   → valida título no vacío
-   → llama onCrear(titulo, descripcion)
-         │
-         ▼
-   useTasks.ts
-   crearTarea(titulo, descripcion)
-   → llama taskService.create()
-         │
-         ▼
-   taskService.ts
-   create({ titulo, descripcion })
-   → supabase.from('tareas').insert([...])
-         │
-         ▼
-   Supabase / PostgreSQL
-   INSERT INTO tareas ...
-         │
-         ▼ (respuesta con nueva fila)
-   useTasks.ts
-   → agrega tarea al estado local (optimista)
-         │
-         ▼
-   React re-render
-   TaskItem nuevo aparece en la lista
-```
-
-### Toggle de Completada
+### Autenticación
 
 ```
-Usuario hace clic en checkbox
-         │
-         ▼
-   TaskItem.tsx → onActualizar({ completada: !tarea.completada })
-         │
-         ▼
-   useTasks.ts → actualizarTarea(id, { completada })
-         │
-         ▼
-   taskService.ts → supabase.from('tareas').update(...).eq('id', id)
-         │
-         ▼
-   Estado local actualizado → re-render inmediato
+Usuario abre /login
+       │
+       ▼
+Login.tsx → signIn(email, password)
+       │
+       ▼
+useAuth.ts → authService.signIn()
+       │
+       ▼
+supabase.auth.signInWithPassword()
+       │
+       ▼ (JWT almacenado en localStorage)
+onAuthStateChange dispara → setUser(session.user)
+       │
+       ▼
+PrivateRoute detecta user !== null → renderiza <Outlet />
+       │
+       ▼
+navigate('/') → Home.tsx
+```
+
+### Subida de Avatar
+
+```
+Usuario selecciona imagen en AvatarUpload
+       │
+       ▼ validar tipo (jpg/png/webp) y tamaño (≤ 2 MB)
+       │
+       ▼
+storageService.avatars.upload(user.id, file)
+       │  path: `{userId}/avatar.{ext}`, upsert: true
+       ▼
+Supabase Storage: SELECT → DELETE → INSERT
+(requiere las 4 políticas RLS)
+       │
+       ▼ { data.path, error }
+       │
+       ▼ si error → throw → alert
+       │
+       ▼
+storageService.avatars.getPublicUrlFromPath(data.path)
++ `?t=${Date.now()}`  ← cache-buster
+       │
+       ▼
+setUrl(url) → <img src={url} /> se actualiza
+```
+
+### Crear Tarea
+
+```
+TaskForm → onCrear(titulo, descripcion)
+       │
+       ▼
+useTasks.crearTarea() → taskService.create()
+       │
+       ▼
+supabase.from('Tareas').insert(tarea).select().single()
+       │
+       ▼
+setTareas(prev => [data, ...prev])   ← actualización optimista
 ```
 
 ---
 
 ## Funcionalidades
 
-### Implementadas
+### Autenticación
 
-| Funcionalidad | Descripción | Archivo |
-|---------------|-------------|---------|
-| Listar tareas | Carga todas las tareas al montar | `useTasks.ts`, `Home.tsx` |
-| Crear tarea | Formulario con título (requerido) y descripción | `TaskForm.tsx` |
-| Completar/descompletar | Checkbox con toggle visual (tachado) | `TaskItem.tsx` |
-| Eliminar tarea | Botón con confirmación del navegador | `TaskItem.tsx` |
-| Contador de progreso | "X / Y completadas" en tiempo real | `Home.tsx` |
-| Estado de carga | Spinner / texto "Cargando..." | `useTasks.ts`, `Home.tsx` |
-| Manejo de errores | Mensajes de error visibles en pantalla | `useTasks.ts`, `Home.tsx` |
-| Feedback de formulario | "Guardando..." al enviar | `TaskForm.tsx` |
+| Funcionalidad | Archivo |
+|---|---|
+| Registro con email y contraseña | `Register.tsx`, `authService.ts` |
+| Login y redirección automática | `Login.tsx`, `useAuth.ts` |
+| Sesión persistente (localStorage) | `supabaseClient.ts` |
+| Cierre de sesión desde NavBar | `NavBar.tsx`, `authService.ts` |
+| Guard de rutas protegidas | `PrivateRoute.tsx`, `AuthContext.tsx` |
 
-### En el Servicio (disponibles para usar)
+### Gestión de Tareas
 
-| Método | Descripción |
-|--------|-------------|
-| `taskService.getAll()` | Trae todas las tareas ordenadas por fecha |
-| `taskService.getById(id)` | Busca una tarea por UUID |
-| `taskService.getByStatus(completada)` | Filtra por estado de completado |
-| `taskService.search(query)` | Búsqueda case-insensitive por título |
-| `taskService.create(data)` | Crea nueva tarea |
-| `taskService.update(id, data)` | Actualiza campos de una tarea |
-| `taskService.toggleCompletada(id, actual)` | Invierte el estado de completado |
-| `taskService.delete(id)` | Elimina una tarea por ID |
-| `taskService.deleteCompleted()` | Elimina todas las completadas |
+| Funcionalidad | Archivo |
+|---|---|
+| Listar tareas (más recientes primero) | `Home.tsx`, `useTasks.ts` |
+| Crear tarea (título requerido + descripción) | `TaskForm.tsx` |
+| Marcar como completada / pendiente | `TaskItem.tsx` |
+| Eliminar con confirmación | `TaskItem.tsx` |
+| Contador de progreso en tiempo real | `Home.tsx` |
+
+### Dashboard y Perfil
+
+| Funcionalidad | Archivo |
+|---|---|
+| Estadísticas: total, completadas, pendientes, % | `Dashboard.tsx` |
+| Barra de progreso animada | `Dashboard.tsx` |
+| Subida y visualización de avatar | `AvatarUpload.tsx`, `storageService.ts` |
+
+### Métodos disponibles en servicios
+
+```typescript
+// taskService
+taskService.getAll()                     // todas las tareas
+taskService.getById(id)                  // por UUID
+taskService.getByStatus(completada)      // filtrar por estado
+taskService.search(texto)                // búsqueda case-insensitive
+taskService.create(tarea)               // nueva tarea
+taskService.update(id, cambios)          // actualizar campos
+taskService.toggleCompletada(id, estado) // invertir completada
+taskService.delete(id)                   // eliminar por ID
+taskService.deleteCompleted()            // eliminar todas las completadas
+
+// authService
+authService.getSession()                 // sesión actual
+authService.signUp(email, password)      // registro
+authService.signIn(email, password)      // login
+authService.signInWithProvider(provider) // OAuth (Google, GitHub...)
+authService.signInWithMagicLink(email)   // login sin contraseña
+authService.signOut()                    // cerrar sesión
+authService.updatePassword(newPassword)  // cambiar contraseña
+authService.onAuthStateChange(callback)  // escuchar cambios de sesión
+
+// storageService
+storageService.avatars.upload(userId, file)           // subir avatar
+storageService.avatars.getPublicUrl(userId, ext)      // URL pública
+storageService.avatars.getPublicUrlFromPath(path)     // URL desde path real
+storageService.avatars.delete(userId, ext)            // eliminar avatar
+storageService.archivos.upload(tareaId, file)         // adjunto de tarea
+storageService.archivos.list(tareaId)                 // listar adjuntos
+storageService.archivos.getSignedUrl(path, expiresIn) // URL firmada
+storageService.archivos.delete(path)                  // eliminar adjunto
+```
 
 ---
 
@@ -324,13 +483,13 @@ npm install
 
 # 3. Configurar variables de entorno
 cp .env.example .env
-# Editar .env con tus credenciales de Supabase
+# Editar .env con las credenciales del proyecto Supabase
 
 # 4. Iniciar servidor de desarrollo
 npm run dev
 ```
 
-La aplicación estará disponible en `http://localhost:5173`
+Disponible en `http://localhost:5173`
 
 ---
 
@@ -339,65 +498,72 @@ La aplicación estará disponible en `http://localhost:5173`
 ### 1. Crear proyecto en Supabase
 
 1. Ir a [app.supabase.com](https://app.supabase.com)
-2. Crear nuevo proyecto
-3. Anotar la **URL** y la **anon key** del proyecto
+2. Nuevo proyecto → anotar **URL** y **anon key**
 
-### 2. Crear la tabla `tareas`
-
-En el **SQL Editor** de Supabase, ejecutar:
-
-```sql
--- Crear tabla de tareas
-CREATE TABLE tareas (
-  id          UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
-  titulo      TEXT        NOT NULL,
-  descripcion TEXT,
-  completada  BOOLEAN     NOT NULL DEFAULT FALSE,
-  created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  user_id     UUID        REFERENCES auth.users(id)
-);
-
--- Habilitar Row Level Security (RLS)
-ALTER TABLE tareas ENABLE ROW LEVEL SECURITY;
-
--- Política permisiva para acceso anónimo (modo taller)
-CREATE POLICY "Acceso público a tareas"
-  ON tareas FOR ALL
-  USING (true)
-  WITH CHECK (true);
-```
-
-### 3. Configurar variables de entorno
-
-Crear o editar el archivo `.env` en la raíz del proyecto:
+### 2. Variables de entorno
 
 ```env
 VITE_SUPABASE_URL=https://xxxxxxxxxxxx.supabase.co
 VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
-> **Importante:** El prefijo `VITE_` es requerido por Vite para exponer variables al cliente. Nunca uses la `service_role` key en el frontend.
+> El prefijo `VITE_` es obligatorio para que Vite exponga la variable al cliente. Nunca uses la `service_role` key en el frontend.
 
-### 4. Verificar la conexión
+### 3. Crear tabla `Tareas`
 
-El cliente valida las variables al arrancar (`src/lib/supabaseClient.ts`):
+```sql
+CREATE TABLE "Tareas" (
+  id          UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
+  titulo      TEXT        NOT NULL,
+  descripcion TEXT,
+  completada  BOOLEAN     DEFAULT FALSE,
+  created_at  TIMESTAMPTZ DEFAULT NOW(),
+  user_id     UUID        REFERENCES auth.users(id)
+);
 
-```typescript
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error('Faltan variables de entorno VITE_SUPABASE_*');
-}
+ALTER TABLE "Tareas" ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Acceso público a tareas"
+  ON "Tareas" FOR ALL
+  USING (true) WITH CHECK (true);
 ```
 
-Si hay un error, aparecerá en la consola del navegador.
+### 4. Crear bucket `avatars`
+
+1. Supabase → **Storage → New bucket**
+2. Nombre: `avatars` · marcar **Public bucket**
+3. Ejecutar en SQL Editor:
+
+```sql
+CREATE POLICY "Usuarios pueden ver objetos en avatars"
+ON storage.objects FOR SELECT TO authenticated
+USING (bucket_id = 'avatars');
+
+CREATE POLICY "Usuarios pueden subir su avatar"
+ON storage.objects FOR INSERT TO authenticated
+WITH CHECK (bucket_id = 'avatars' AND name LIKE (auth.uid()::text || '/%'));
+
+CREATE POLICY "Usuarios pueden actualizar su avatar"
+ON storage.objects FOR UPDATE TO authenticated
+USING (bucket_id = 'avatars' AND name LIKE (auth.uid()::text || '/%'));
+
+CREATE POLICY "Usuarios pueden eliminar su avatar"
+ON storage.objects FOR DELETE TO authenticated
+USING (bucket_id = 'avatars' AND name LIKE (auth.uid()::text || '/%'));
+```
+
+### 5. Activar Auth por Email
+
+Supabase → **Authentication → Providers → Email** → habilitado por defecto.
 
 ---
 
 ## Scripts Disponibles
 
 ```bash
-npm run dev       # Servidor de desarrollo con HMR en localhost:5173
+npm run dev       # Servidor de desarrollo HMR en localhost:5173
 npm run build     # Compilar TypeScript + bundle de producción (dist/)
-npm run preview   # Servir la build de producción localmente
+npm run preview   # Previsualizar la build de producción
 npm run lint      # Analizar código con ESLint
 ```
 
@@ -405,142 +571,96 @@ npm run lint      # Analizar código con ESLint
 
 ## Documentación de Capas
 
-### `src/lib/supabaseClient.ts` — Cliente Singleton
+### `src/lib/supabaseClient.ts` — Singleton
 
 ```typescript
-import { createClient } from '@supabase/supabase-js';
-import type { Database } from '../types/database';
-
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-
-// Una sola instancia compartida en toda la app
-export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey);
+export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey)
 ```
 
-**Por qué Singleton:** Evita crear múltiples conexiones WebSocket innecesarias. Una instancia es suficiente para toda la aplicación.
+Una sola instancia tipada con el esquema de la BD. Todos los servicios la importan.
 
 ---
 
-### `src/services/taskService.ts` — Capa de Servicio
-
-Centraliza TODAS las llamadas a Supabase. Los componentes nunca importan `supabase` directamente.
+### `src/context/AuthContext.tsx` — Proveedor de Auth
 
 ```typescript
-// Ejemplo: obtener todas las tareas
-export const taskService = {
-  getAll: () =>
-    supabase
-      .from('tareas')
-      .select('*')
-      .order('created_at', { ascending: false }),
+// El tipo se infiere del hook — siempre sincronizado automáticamente
+type AuthContextType = ReturnType<typeof useAuth>
 
-  create: (data: { titulo: string; descripcion?: string }) =>
-    supabase.from('tareas').insert([data]).select().single(),
+export function AuthProvider({ children }: { children: ReactNode }) {
+    const auth = useAuth()
+    return <AuthContext.Provider value={auth}>{children}</AuthContext.Provider>
+}
 
-  toggleCompletada: (id: string, actual: boolean) =>
-    supabase
-      .from('tareas')
-      .update({ completada: !actual })
-      .eq('id', id)
-      .select()
-      .single(),
-
-  delete: (id: string) =>
-    supabase.from('tareas').delete().eq('id', id),
-};
-```
-
----
-
-### `src/hooks/useTasks.ts` — Hook Personalizado
-
-Gestiona el estado de la lista de tareas y expone métodos para los componentes.
-
-```typescript
-export function useTasks() {
-  const [tareas, setTareas] = useState<Tarea[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  // Carga inicial automática
-  useEffect(() => { fetchTareas(); }, []);
-
-  const crearTarea = async (titulo: string, descripcion?: string) => {
-    const { data, error } = await taskService.create({ titulo, descripcion });
-    if (data) setTareas(prev => [data, ...prev]); // Actualización optimista
-  };
-
-  return { tareas, loading, error, crearTarea, actualizarTarea, eliminarTarea };
+export function useAuthContext() {
+    const ctx = useContext(AuthContext)
+    if (!ctx) throw new Error('useAuthContext debe usarse dentro de <AuthProvider>')
+    return ctx
 }
 ```
 
-**Actualización optimista:** El estado local se actualiza inmediatamente sin esperar confirmación de la API, dando una experiencia fluida.
-
 ---
 
-### `src/components/TaskForm.tsx` — Formulario
-
-Componente controlado que gestiona su propio estado local del formulario:
+### `src/hooks/useAuth.ts` — Estado de Sesión
 
 ```typescript
-interface TaskFormProps {
-  onCrear: (titulo: string, descripcion: string) => Promise<void>;
+export function useAuth() {
+    const [user, setUser]     = useState<User | null>(null)
+    const [loading, setLoading] = useState(true)
+
+    useEffect(() => {
+        // Recuperar sesión guardada en localStorage
+        authService.getSession().then(({ data: { session } }) => {
+            setUser(session?.user ?? null)
+            setLoading(false)
+        })
+        // Escuchar login/logout/token refresh en tiempo real
+        const { data: { subscription } } = authService.onAuthStateChange(
+            async (_event, session) => setUser(session?.user ?? null)
+        )
+        return () => subscription.unsubscribe()
+    }, [])
+
+    return { user, loading, signUp, signIn, signOut }
 }
 ```
 
-- Estado: `titulo`, `descripcion`, `guardando`
-- Validación: título no puede estar vacío
-- Reset automático tras creación exitosa
-- Botón deshabilitado durante el envío
-
 ---
 
-### `src/components/TaskItem.tsx` — Elemento de Lista
-
-Representa una tarea individual con acciones:
+### `src/components/PrivateRoute.tsx` — Guard de Rutas
 
 ```typescript
-interface TaskItemProps {
-  tarea: Tarea;
-  onActualizar: (id: string, data: Partial<Tarea>) => Promise<void>;
-  onEliminar: (id: string) => Promise<void>;
+export function PrivateRoute() {
+    const { user, loading } = useAuthContext()
+    if (loading) return <div className="estado-cargando">Cargando...</div>
+    if (!user)   return <Navigate to='/login' replace />
+    return (
+        <>
+            <NavBar />
+            <main className="app-main"><Outlet /></main>
+        </>
+    )
 }
 ```
 
-- Checkbox para toggle de `completada`
-- Texto tachado (`text-decoration: line-through`) si completada
-- Botón eliminar con `window.confirm()` como guarda
-- Estado `eliminando` para feedback visual (opacidad reducida)
-
 ---
 
-### `src/pages/Home.tsx` — Página Principal
+### `src/components/AvatarUpload.tsx` — Subida de Imagen
 
-Orquesta todos los componentes:
+Puntos clave de implementación:
 
 ```typescript
-export default function Home() {
-  const { tareas, loading, error, crearTarea, actualizarTarea, eliminarTarea } = useTasks();
+const { data, error } = await storageService.avatars.upload(user.id, file)
+if (error) throw error   // Supabase NO lanza excepciones — hay que verificar
 
-  const completadas = tareas.filter(t => t.completada).length;
-
-  return (
-    <>
-      <TaskForm onCrear={crearTarea} />
-      <p>{completadas} / {tareas.length} completadas</p>
-      {tareas.map(tarea => (
-        <TaskItem
-          key={tarea.id}
-          tarea={tarea}
-          onActualizar={actualizarTarea}
-          onEliminar={eliminarTarea}
-        />
-      ))}
-    </>
-  );
-}
+// Usar data.path (ruta real confirmada) + cache-buster para forzar recarga
+const base = storageService.avatars.getPublicUrlFromPath(data.path)
+setUrl(`${base}?t=${Date.now()}`)
 ```
+
+> **Errores comunes:**
+> - Sin `if (error) throw error` → el upload falla silenciosamente y `setUrl` recibe una URL que apunta a un archivo inexistente.
+> - Sin `?t=Date.now()` → el navegador sirve la imagen anterior desde caché (CDN con `cacheControl: '3600'`).
 
 ---
 
@@ -549,88 +669,54 @@ export default function Home() {
 ### Nomenclatura
 
 | Elemento | Convención | Ejemplo |
-|----------|-----------|---------|
-| Componentes | PascalCase | `TaskForm`, `TaskItem` |
-| Hooks | camelCase con prefijo `use` | `useTasks` |
-| Servicios | camelCase con sufijo `Service` | `taskService` |
-| Tipos/Interfaces | PascalCase | `Tarea`, `TareaInsert` |
-| Variables/Funciones | camelCase | `crearTarea`, `fetchTareas` |
-| Archivos de componentes | PascalCase.tsx | `TaskForm.tsx` |
-| Archivos de hooks/servicios | camelCase.ts | `useTasks.ts` |
+|---|---|---|
+| Componentes | PascalCase | `TaskForm`, `NavBar`, `AvatarUpload` |
+| Hooks | `use` + camelCase | `useTasks`, `useAuth` |
+| Servicios | camelCase + `Service` | `taskService`, `authService` |
+| Tipos | PascalCase | `Tarea`, `TareaInsert` |
+| Archivos de componentes | `PascalCase.tsx` | `TaskItem.tsx` |
+| Archivos de hooks/servicios | `camelCase.ts` | `useTasks.ts` |
 
 ### Patrones Aplicados
 
-- **Singleton** — Un solo cliente de Supabase en toda la app
-- **Service Layer** — Abstracción de la API separada de la UI
-- **Custom Hook** — Lógica de estado separada de los componentes
-- **Controlled Components** — Formularios manejados por estado React
-- **Props drilling mínimo** — El hook provee los datos, páginas pasan props a hijos directos
+| Patrón | Dónde |
+|---|---|
+| **Singleton** | `supabaseClient.ts` — una sola conexión |
+| **Context + Custom Hook** | `AuthContext` + `useAuth` — estado global de sesión |
+| **Service Layer** | `*Service.ts` — los componentes nunca llaman a `supabase` directamente |
+| **Guard / Protected Route** | `PrivateRoute.tsx` — redirige si no hay sesión |
+| **Optimistic Update** | `useTasks.ts` — estado local actualiza antes de confirmar la API |
+| **Cache Busting** | `AvatarUpload.tsx` — `?t=timestamp` en URL de Storage |
 
-### TypeScript Strict Mode
+### TypeScript Strict
 
 ```json
 {
-  "compilerOptions": {
-    "strict": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true
-  }
+  "strict": true,
+  "noUnusedLocals": true,
+  "noUnusedParameters": true
 }
 ```
+
+Todos los `catch` usan `err: unknown` con `instanceof Error` — sin `any`.
 
 ---
 
 ## Paleta de Colores SENA
 
 ```css
---color-primary:     #39A900;   /* Verde SENA principal */
---color-dark:        #007A33;   /* Verde oscuro (hover) */
---color-light:       #E8F5E0;   /* Verde claro (fondos) */
---color-text:        #1B2E1B;   /* Texto oscuro */
---color-danger:      #D32F2F;   /* Rojo para eliminar */
-```
-
----
-
-## Próximas Funcionalidades
-
-El proyecto tiene dependencias instaladas que habilitan las siguientes extensiones:
-
-### React Router DOM — Múltiples Páginas
-```
-/           →  Home (lista de tareas)
-/estadisticas →  Dashboard con gráficos
-/perfil     →  Configuración de usuario
-```
-
-### Recharts — Visualización de Datos
-```
-Tareas completadas vs pendientes  →  PieChart
-Tareas creadas por día            →  BarChart / LineChart
-Progreso semanal                  →  AreaChart
-```
-
-### Supabase Auth — Autenticación
-```typescript
-// La columna user_id ya existe en la tabla tareas
-// Solo se necesita activar el proveedor de Auth en Supabase
-const { data: { user } } = await supabase.auth.getUser();
-const { data } = await supabase
-  .from('tareas')
-  .select('*')
-  .eq('user_id', user.id);  // Tareas por usuario
-```
-
-### Supabase Realtime — Actualizaciones en Vivo
-```typescript
-// Suscripción a cambios en la tabla
-supabase
-  .channel('tareas-realtime')
-  .on('postgres_changes', { event: '*', schema: 'public', table: 'tareas' }, payload => {
-    // Actualizar estado automáticamente cuando otro usuario hace cambios
-  })
-  .subscribe();
+:root {
+  --sena-green:        #39A900;   /* Verde SENA principal */
+  --sena-dark-green:   #007A33;   /* Verde oscuro — hover, navbar */
+  --sena-light-green:  #E8F5E0;   /* Verde claro — fondos, badges */
+  --sena-white:        #FFFFFF;
+  --sena-gray-bg:      #F4F7F4;   /* Fondo de página */
+  --sena-gray-border:  #C8DEC8;   /* Bordes de inputs y tarjetas */
+  --sena-text:         #1B2E1B;   /* Texto principal */
+  --sena-text-muted:   #5A7A5A;   /* Texto secundario */
+  --sena-danger:       #D32F2F;   /* Rojo — eliminar, errores */
+  --sena-danger-hover: #B71C1C;
+}
 ```
 
 ---
@@ -638,10 +724,11 @@ supabase
 ## Recursos de Aprendizaje
 
 - [Documentación de Supabase](https://supabase.com/docs)
-- [Supabase JavaScript Client](https://supabase.com/docs/reference/javascript/introduction)
-- [React Hooks — Documentación oficial](https://react.dev/reference/react)
+- [Supabase Storage — RLS](https://supabase.com/docs/guides/storage/security/access-control)
+- [Supabase Auth — Email](https://supabase.com/docs/guides/auth/auth-email)
+- [React Router v7](https://reactrouter.com/start/library/routing)
+- [React Hooks](https://react.dev/reference/react)
 - [TypeScript Handbook](https://www.typescriptlang.org/docs/handbook/intro.html)
-- [Vite Guide](https://vitejs.dev/guide/)
 
 ---
 
@@ -651,4 +738,4 @@ Proyecto de uso educativo — SENA, Colombia.
 
 ---
 
-*Taller desarrollado como práctica de integración React + Supabase con arquitectura limpia por capas.*
+*Taller de integración React + Supabase: Auth · PostgreSQL · Storage · RLS.*
