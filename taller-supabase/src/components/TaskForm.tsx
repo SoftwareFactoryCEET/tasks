@@ -1,4 +1,6 @@
 // src/components/TaskForm.tsx
+// Formulario controlado para crear nuevas tareas.
+// Delega la lógica de creación al padre mediante la prop onCrear (inyección de dependencia).
 import { useState } from 'react'
 
 interface Props {
@@ -8,15 +10,15 @@ interface Props {
 export function TaskForm({ onCrear }: Props) {
     const [titulo,      setTitulo]      = useState('')
     const [descripcion, setDescripcion] = useState('')
-    const [submitting,  setSubmitting]  = useState(false)
+    const [submitting,  setSubmitting]  = useState(false)  // deshabilita el botón mientras se guarda
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
-        if (!titulo.trim()) return
+        if (!titulo.trim()) return  // validación mínima: el título no puede estar vacío
         setSubmitting(true)
         try {
             await onCrear(titulo.trim(), descripcion.trim())
-            setTitulo(''); setDescripcion('')
+            setTitulo(''); setDescripcion('')  // limpia los campos tras crear exitosamente
         } catch (err) { console.error(err) }
         finally { setSubmitting(false) }
     }

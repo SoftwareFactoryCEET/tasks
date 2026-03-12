@@ -1,4 +1,7 @@
 // src/components/AvatarUpload.tsx
+// Componente para mostrar y actualizar la foto de perfil del usuario.
+// Usa el bucket "avatars" de Supabase Storage con ruta fija y cache-buster en la URL
+// para garantizar que el navegador siempre muestre la versión más reciente.
 import { useState, useEffect } from 'react'
 import type { ChangeEvent } from 'react'
 import { storageService } from '../services/storageService'
@@ -9,15 +12,12 @@ export function AvatarUpload() {
     const [url, setUrl]      = useState<string | null>(null)
     const [uploading, setUp] = useState(false)
 
-    // Restaurar el avatar más reciente al montar el componente
+    // Al montar: verifica si ya existe un avatar guardado antes de intentar mostrarlo
+    // (evita errores 404 si el usuario aún no ha subido ninguna foto)
     useEffect(() => {
         if (!user) return
-        storageService.avatars.list(user.id).then(({ data }) => {
-            if (!data?.length) return
-            // El nombre incluye el timestamp → ordenar por nombre desc = más reciente primero
-            const latest = [...data].sort((a, b) => b.name.localeCompare(a.name))[0]
-            const path = `${user.id}/${latest.name}`
-            setUrl(storageService.avatars.getPublicUrlFromPath(path))
+        storageService.avatars.exists(user.id).then(tiene => {
+            if (tiene) setUrl(storageService.avatars.getPublicUrl(user.id))
         })
     }, [user])
 
@@ -25,6 +25,7 @@ export function AvatarUpload() {
         const file = e.target.files?.[0]
         if (!file || !user) return
 
+        // Validaciones en el cliente para dar feedback rápido sin consumir ancho de banda
         if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type))
             return alert('Solo JPG, PNG o WebP')
         if (file.size > 2 * 1024 * 1024)
@@ -32,12 +33,11 @@ export function AvatarUpload() {
 
         setUp(true)
         try {
-            // Borrar avatares anteriores para no acumular archivos en el bucket
-            await storageService.avatars.deleteAll(user.id)
-            const { data, error } = await storageService.avatars.upload(user.id, file)
+            // upsert:true → sobrescribe el archivo existente en la misma ruta fija
+            const { error } = await storageService.avatars.upload(user.id, file)
             if (error) { alert(error.message); return }
-            // URL única por nombre → el CDN nunca la ha servido antes
-            setUrl(storageService.avatars.getPublicUrlFromPath(data.path))
+            // Actualiza la URL con un nuevo timestamp para invalidar la caché del navegador
+            setUrl(storageService.avatars.getPublicUrl(user.id))
         } catch (err: unknown) {
             alert(err instanceof Error ? err.message : 'Error inesperado al subir')
         } finally { setUp(false) }

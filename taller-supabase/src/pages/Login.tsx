@@ -1,4 +1,7 @@
 // src/pages/Login.tsx
+// Página de inicio de sesión con email y contraseña.
+// Tras autenticarse exitosamente, redirige a la página principal (/).
+// Incluye enlaces a registro y recuperación de contraseña.
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuthContext } from '../context/AuthContext'
@@ -16,7 +19,7 @@ export function Login() {
         setError(''); setLoading(true)
         try {
             await signIn(email, password)
-            navigate('/')
+            navigate('/')  // redirige al home tras login exitoso
         } catch (err: unknown) {
             setError(err instanceof Error ? err.message : 'Credenciales incorrectas')
         } finally { setLoading(false) }
@@ -53,6 +56,9 @@ export function Login() {
                     </button>
                 </form>
 
+                <p className="auth-footer">
+                    <Link to="/forgot-password">¿Olvidaste tu contraseña?</Link>
+                </p>
                 <p className="auth-footer">
                     ¿No tienes cuenta? <Link to="/register">Regístrate aquí</Link>
                 </p>

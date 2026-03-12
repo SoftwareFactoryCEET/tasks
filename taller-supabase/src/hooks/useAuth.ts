@@ -1,20 +1,23 @@
 // src/hooks/useAuth.ts
+// Hook que gestiona el ciclo de vida de la sesión del usuario.
+// Es consumido por AuthContext para compartir el estado globalmente.
 import { useState, useEffect } from 'react'
 import { authService } from '../services/authService'
 import type { User } from '@supabase/supabase-js'
 
 export function useAuth() {
     const [user,    setUser]    = useState<User | null>(null)
-    const [loading, setLoading] = useState(true)
+    const [loading, setLoading] = useState(true)  // true hasta que se verifique la sesión inicial
 
     useEffect(() => {
-        // Obtener sesión actual al cargar la app
+        // Al montar: recupera la sesión persistida en localStorage (si el usuario ya había iniciado sesión)
         authService.getSession().then(({ data: { session } }) => {
             setUser(session?.user ?? null)
             setLoading(false)
         })
 
-        // Escuchar cambios de sesión (login, logout, refresh de token)
+        // Suscripción reactiva: actualiza el usuario ante login, logout, refresh de token, etc.
+        // El cleanup cancela la suscripción al desmontar para evitar memory leaks
         const { data: { subscription } } = authService.onAuthStateChange(
             async (_event, session) => setUser(session?.user ?? null)
         )

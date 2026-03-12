@@ -1,13 +1,18 @@
 // src/services/taskService.ts
+// CRUD completo para la tabla "Tareas" de Supabase.
+// IMPORTANTE: el nombre de la tabla es "Tareas" con T mayúscula (definido en types/database.ts).
+// Las RLS (Row Level Security) en Supabase garantizan que cada usuario solo ve sus propias tareas.
 import { supabase } from '../lib/supabaseClient'
 import type { TablesInsert, TablesUpdate } from '../types/database'
 
+// Tipos inferidos del esquema generado — evitan errores de tipado en inserts y updates
 type TareaInsert = TablesInsert<'Tareas'>
 type TareaUpdate = TablesUpdate<'Tareas'>
 
 export const taskService = {
 
     // ─── READ ───────────────────────────────────────────────
+    // Devuelve todas las tareas del usuario ordenadas por fecha de creación (más recientes primero)
     getAll: () =>
         supabase
             .from('Tareas')

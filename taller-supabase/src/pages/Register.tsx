@@ -1,4 +1,7 @@
 // src/pages/Register.tsx
+// Página de registro de nueva cuenta.
+// Valida en el cliente que las contraseñas coincidan y tengan al menos 6 caracteres
+// antes de llamar a Supabase, para dar feedback inmediato sin consumir el límite de solicitudes.
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuthContext } from '../context/AuthContext'
@@ -8,12 +11,13 @@ export function Register() {
     const navigate    = useNavigate()
     const [email,    setEmail]    = useState('')
     const [password, setPassword] = useState('')
-    const [confirm,  setConfirm]  = useState('')
+    const [confirm,  setConfirm]  = useState('')  // segundo campo para confirmar la contraseña
     const [error,    setError]    = useState('')
     const [loading,  setLoading]  = useState(false)
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
+        // Validaciones previas al envío — evitan llamadas innecesarias a la API
         if (password !== confirm) { setError('Las contraseñas no coinciden'); return }
         if (password.length < 6)  { setError('La contraseña debe tener al menos 6 caracteres'); return }
         setError(''); setLoading(true)
